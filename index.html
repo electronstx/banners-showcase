@@ -1,62 +1,104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Витрина баннеров</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Демонстрация баннеров</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; background: #f4f4f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        .banner-link { display: block; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; text-decoration: none; color: #007bff; transition: 0.2s; }
-        .banner-link:hover { background: #f0f7ff; border-color: #007bff; }
-        .meta { font-size: 0.8em; color: #666; margin-top: 5px; }
+      body {
+        font-family: sans-serif;
+        padding: 40px;
+        background: #f4f4f9;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+      }
+      .banner-link {
+        display: block;
+        padding: 15px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #007bff;
+        transition: 0.2s;
+      }
+      .banner-link:hover {
+        background: #f0f7ff;
+        border-color: #007bff;
+      }
+      .meta {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Демонстрация баннеров</h1>
-        <div id="list">Загрузка проектов...</div>
+      <h1>Демонстрация баннеров</h1>
+      <div id="list">Загрузка проектов...</div>
     </div>
 
     <script>
-        const USER = 'electronstx';
-        const REPO = 'banners-showcase';
-        const PROJECTS_PATH = 'projects';
+      const USER = "electronstx";
+      const REPO = "banners-showcase";
+      const PROJECTS_PATH = "projects";
 
-        async function loadProjects() {
-            const listDiv = document.getElementById('list');
-            try {
-                const response = await fetch(`https://api.github.com{USER}/${REPO}/contents/${PROJECTS_PATH}`);
-                const clients = await response.json();
-                
-                listDiv.innerHTML = '';
+      async function loadProjects() {
+        const listDiv = document.getElementById("list");
+        try {
+          const url = `https://api.github.com{USER}/${REPO}/contents/${PROJECTS_PATH}`;
+          const response = await fetch(url);
 
-                for (const client of clients) {
-                    if (client.type === 'dir') {
-                        const pResponse = await fetch(client.url);
-                        const projects = await pResponse.json();
-                        
-                        projects.forEach(project => {
-                            if (project.type === 'dir') {
-                                const link = document.createElement('a');
-                                link.className = 'banner-link';
-                                link.href = `https://${USER}.github.io/${REPO}/${PROJECTS_PATH}/${client.name}/${project.name}/index.html`;
-                                link.target = "_blank";
-                                link.innerHTML = `
+          if (!response.ok) {
+            throw new Error(
+              `Ошибка API: ${response.status} (Проверьте наличие папки 'projects' с файлами)`,
+            );
+          }
+
+          const clients = await response.json();
+          listDiv.innerHTML = "";
+
+          if (clients.length === 0) {
+            listDiv.innerText = "Папка projects пуста.";
+            return;
+          }
+
+          for (const client of clients) {
+            if (client.type === "dir") {
+              const pResponse = await fetch(client.url);
+              const projects = await pResponse.json();
+
+              projects.forEach((project) => {
+                if (project.type === "dir") {
+                  const link = document.createElement("a");
+                  link.className = "banner-link";
+                  link.href = `https://${USER}.github.io/${REPO}/${PROJECTS_PATH}/${client.name}/${project.name}/index.html`;
+                  link.target = "_blank";
+                  link.innerHTML = `
                                     <strong>${client.name}</strong> / ${project.name}
                                     <div class="meta">Открыть в новой вкладке ↗</div>
                                 `;
-                                listDiv.appendChild(link);
-                            }
-                        });
-                    }
+                  listDiv.appendChild(link);
                 }
-            } catch (e) {
-                listDiv.innerText = 'Ошибка загрузки проектов. Проверьте настройки API.';
+              });
             }
+          }
+        } catch (e) {
+          listDiv.innerText =
+            "Ошибка загрузки проектов. Проверьте настройки API.";
         }
+      }
 
-        loadProjects();
+      loadProjects();
     </script>
-</body>
+  </body>
 </html>
