@@ -55,7 +55,7 @@
       async function loadProjects() {
         const listDiv = document.getElementById("list");
         try {
-          const url = `https://api.github.com/${USER}/${REPO}/${PROJECTS_PATH}`;
+          const url = `https://api.github.com/${USER}/${REPO}/contents/${PROJECTS_PATH}`;
           const response = await fetch(url);
 
           if (!response.ok) {
