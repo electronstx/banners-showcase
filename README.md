@@ -2,7 +2,7 @@
 
 Система хранения и демонстрации рекламных баннеров на базе GitHub Pages.
 Автоматическая витрина доступна по адресу:
-👉 **https://electronstx.github.io**
+👉 **https://electronstx.github.io/banners-showcase/**
 
 ---
 
@@ -26,11 +26,11 @@ projects/
 
 ## 🔗 Прямые ссылки для клиентов
 
-Можно отправить прямую ссылку на конкретный баннер:
+Можно отправить прямую ссылку на конкретный баннер:  
 https://electronstx.github.io/banners-showcase/projects/[имя-клиента]/[название-проекта]/index.html
 
 ## ⚙️ Техническая информация
 
-**Frontend:** Vanilla JS + GitHub REST API.
-**Hosting:** GitHub Pages.
+**Frontend:** Vanilla JS + GitHub REST API.  
+**Hosting:** GitHub Pages.  
 **Обновление:** Динамическое (скрипт сканирует содержимое репозитория при загрузке страницы).
