@@ -136,7 +136,7 @@
         align-items: center;
         justify-content: center;
         padding: 30px;
-        overflow: auto;
+        overflow: hidden;
       }
 
       .frame-wrapper {
@@ -228,7 +228,7 @@
         text-align: center;
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 900px) {
         .toolbar {
           padding: 8px 12px;
           gap: 8px;
@@ -238,6 +238,7 @@
         }
         .viewport {
           padding: 10px;
+          align-items: flex-start;
         }
       }
     </style>
@@ -278,8 +279,8 @@
         <select id="size-select" onchange="onSizeChange()">
           <option value="vk">VK Desktop (1177 &times; 873)</option>
           <option value="vk-tgb">VK TGB (158 &times; 300)</option>
-          <option value="ok">OK (240 &times; 400)</option>
-          <option value="mytarget">MyTarget (240 &times; 400)</option>
+          <option value="ok">OK (1080 &times; 810)</option>
+          <option value="zen">Zen (1200 &times; 900)</option>
           <option value="custom">Свой размер...</option>
         </select>
         <div class="custom-size" id="custom-size">
@@ -357,8 +358,8 @@
       const SIZE_PRESETS = {
         vk: { width: 1177, height: 873 },
         "vk-tgb": { width: 158, height: 300 },
-        ok: { width: 240, height: 400 },
-        mytarget: { width: 240, height: 400 },
+        ok: { width: 1080, height: 810 },
+        zen: { width: 1200, height: 900 },
       };
 
       const params = new URLSearchParams(window.location.search);
@@ -391,6 +392,7 @@
       ) {
         sizeSelect.value = initialSize;
       }
+      frame.addEventListener("load", () => autoFitScale());
       onSizeChange();
 
       function doLaunch() {
@@ -421,6 +423,25 @@
         wrapper.style.width = w + "px";
         wrapper.style.height = h + "px";
         badge.textContent = `${w} × ${h}`;
+        autoFitScale();
+      }
+
+      function autoFitScale() {
+        const viewportEl = document.querySelector(".viewport");
+        const availableWidth = viewportEl.clientWidth - 20;
+        const availableHeight = viewportEl.clientHeight - 40;
+        const wrapperWidth = parseInt(wrapper.style.width);
+        const wrapperHeight = parseInt(wrapper.style.height);
+        let fitScale = 100;
+        if (wrapperWidth > availableWidth || wrapperHeight > availableHeight) {
+          const scaleW = availableWidth / wrapperWidth;
+          const scaleH = availableHeight / wrapperHeight;
+          fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
+          fitScale = Math.max(fitScale, 10);
+        }
+        const slider = document.getElementById("scale-slider");
+        slider.value = fitScale;
+        onScaleChange();
       }
 
       function onSizeChange() {
@@ -463,6 +484,7 @@
           margin: 4,
           scalable: true,
         });
+
         const svg = container.querySelector("svg");
         if (svg) {
           svg.style.width = "200px";
@@ -489,6 +511,10 @@
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeQR();
+      });
+
+      window.addEventListener("resize", () => {
+        autoFitScale();
       });
     </script>
   </body>
