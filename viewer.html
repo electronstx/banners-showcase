@@ -392,21 +392,18 @@
         const viewportEl = document.querySelector(".viewport");
         const availableWidth = viewportEl.clientWidth - 20;
         const availableHeight = viewportEl.clientHeight - 40;
+
         const wrapperWidth = parseInt(wrapper.style.width);
         const wrapperHeight = parseInt(wrapper.style.height);
-        const fitWidthOnly = ["vk", "ok", "zen"].includes(sizeSelect.value);
-        let fitScale = 100;
-        if (fitWidthOnly) {
-          fitScale = Math.floor((availableWidth / wrapperWidth) * 100);
-        } else if (
-          wrapperWidth > availableWidth ||
-          wrapperHeight > availableHeight
-        ) {
-          const scaleW = availableWidth / wrapperWidth;
-          const scaleH = availableHeight / wrapperHeight;
-          fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
-        }
+
+        const scaleW = availableWidth / wrapperWidth;
+        const scaleH = availableHeight / wrapperHeight;
+
+        let fitScale = Math.min(scaleW, scaleH, 1.0);
+
+        fitScale = Math.floor(fitScale * 100);
         fitScale = Math.max(fitScale, 10);
+
         document.getElementById("scale-slider").value = fitScale;
         onScaleChange();
       };
