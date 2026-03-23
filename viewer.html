@@ -390,10 +390,18 @@
 
       const autoFitScale = () => {
         const viewportEl = document.querySelector(".viewport");
-        const availableWidth = viewportEl.clientWidth - 20;
+        const availableWidth = viewportEl.clientWidth;
         const availableHeight = viewportEl.clientHeight - 40;
         const wrapperWidth = parseInt(wrapper.style.width);
         const wrapperHeight = parseInt(wrapper.style.height);
+
+        if (
+          !wrapperWidth ||
+          !wrapperHeight ||
+          availableWidth <= 0 ||
+          availableHeight <= 0
+        )
+          return;
 
         let fitScale = 100;
 
@@ -509,7 +517,9 @@
         sizeSelect.value = initialSize;
       }
 
-      onSizeChange();
+      requestAnimationFrame(() => {
+        onSizeChange();
+      });
 
       frame.addEventListener("load", () => autoFitScale());
 
