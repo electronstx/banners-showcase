@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Просмотр баннера</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .toolbar {
+        background: #16213e;
+        border-bottom: 1px solid #0f3460;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toolbar-group + .toolbar-group {
+        padding-left: 12px;
+        border-left: 1px solid #0f3460;
+      }
+
+      .toolbar-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #7f8c8d;
+        white-space: nowrap;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: 1px solid #0f3460;
+        border-radius: 6px;
+        background: #16213e;
+        color: #e0e0e0;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        background: #1a365d;
+        border-color: #2980b9;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn.primary {
+        background: #2980b9;
+        border-color: #3498db;
+        color: #fff;
+      }
+      .btn.primary:hover {
+        background: #3498db;
+      }
+      .btn.success {
+        background: #27ae60;
+        border-color: #2ecc71;
+        color: #fff;
+      }
+      .btn.success:hover {
+        background: #2ecc71;
+      }
+      .btn.warning {
+        background: #e67e22;
+        border-color: #f39c12;
+        color: #fff;
+      }
+      .btn.warning:hover {
+        background: #f39c12;
+      }
+
+      select {
+        padding: 8px 12px;
+        border: 1px solid #0f3460;
+        border-radius: 6px;
+        background: #16213e;
+        color: #e0e0e0;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      input[type="number"] {
+        width: 70px;
+        padding: 8px;
+        border: 1px solid #0f3460;
+        border-radius: 6px;
+        background: #16213e;
+        color: #e0e0e0;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .banner-info {
+        padding: 8px 20px;
+        background: #16213e;
+        font-size: 13px;
+        color: #7f8c8d;
+        border-bottom: 1px solid #0f3460;
+      }
+
+      .banner-info strong {
+        color: #e0e0e0;
+      }
+
+      .viewport {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        overflow: auto;
+      }
+
+      .frame-wrapper {
+        position: relative;
+        background: #fff;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        border-radius: 4px;
+        overflow: hidden;
+        transition:
+          width 0.3s,
+          height 0.3s;
+      }
+
+      .frame-wrapper iframe {
+        display: block;
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      .size-badge {
+        position: absolute;
+        bottom: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: #7f8c8d;
+        white-space: nowrap;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        background: #16213e;
+        border: 1px solid #0f3460;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        max-width: 360px;
+        width: 90%;
+      }
+
+      .modal h3 {
+        margin-bottom: 8px;
+        color: #fff;
+      }
+      .modal p {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+      }
+      .modal canvas {
+        border-radius: 8px;
+      }
+      .modal .btn {
+        margin-top: 16px;
+      }
+
+      .custom-size {
+        display: none;
+        align-items: center;
+        gap: 6px;
+      }
+      .custom-size.active {
+        display: flex;
+      }
+
+      input[type="range"] {
+        width: 100px;
+        accent-color: #2980b9;
+      }
+
+      .scale-value {
+        font-size: 12px;
+        color: #7f8c8d;
+        min-width: 36px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .toolbar {
+          padding: 8px 12px;
+          gap: 8px;
+        }
+        .toolbar-group + .toolbar-group {
+          padding-left: 8px;
+        }
+        .viewport {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="banner-info">
+      <strong id="banner-title">Загрузка...</strong>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Анимация</span>
+        <button
+          class="btn success"
+          onclick="doLaunch()"
+          title="Запустить анимацию"
+        >
+          &#9654; Launch
+        </button>
+        <button
+          class="btn warning"
+          onclick="doPause()"
+          title="Поставить на паузу"
+        >
+          &#10074;&#10074; Pause
+        </button>
+        <button
+          class="btn primary"
+          onclick="doResume()"
+          title="Продолжить анимацию"
+        >
+          &#9654;&#xFE0E; Resume
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <span class="toolbar-label">Размер</span>
+        <select id="size-select" onchange="onSizeChange()">
+          <option value="vk">VK Desktop (1177 &times; 873)</option>
+          <option value="vk-tgb">VK TGB (158 &times; 300)</option>
+          <option value="ok">OK (240 &times; 400)</option>
+          <option value="mytarget">MyTarget (240 &times; 400)</option>
+          <option value="custom">Свой размер...</option>
+        </select>
+        <div class="custom-size" id="custom-size">
+          <input
+            type="number"
+            id="custom-w"
+            placeholder="W"
+            min="50"
+            max="3000"
+            value="300"
+          />
+          <span>&times;</span>
+          <input
+            type="number"
+            id="custom-h"
+            placeholder="H"
+            min="50"
+            max="3000"
+            value="250"
+          />
+          <button class="btn" onclick="applyCustomSize()">OK</button>
+        </div>
+      </div>
+
+      <div class="toolbar-group">
+        <span class="toolbar-label">Масштаб</span>
+        <input
+          type="range"
+          id="scale-slider"
+          min="25"
+          max="200"
+          value="100"
+          oninput="onScaleChange()"
+        />
+        <span class="scale-value" id="scale-value">100%</span>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="btn" onclick="showQR()" title="QR-код для телефона">
+          &#9641; QR-код
+        </button>
+        <button class="btn" onclick="copyLink()" title="Скопировать ссылку">
+          &#128203; Копировать ссылку
+        </button>
+      </div>
+    </div>
+
+    <div class="viewport">
+      <div style="position: relative">
+        <div class="frame-wrapper" id="frame-wrapper">
+          <iframe
+            id="banner-frame"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
+        </div>
+        <div class="size-badge" id="size-badge"></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="qr-modal" onclick="closeQR(event)">
+      <div class="modal">
+        <h3>QR-код</h3>
+        <p>Отсканируйте для просмотра на телефоне</p>
+        <div id="qr-container"></div>
+        <button class="btn" onclick="closeQR()">Закрыть</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script>
+      const USER = "electronstx";
+      const REPO = "banners-showcase";
+      const PROJECTS_PATH = "projects";
+
+      const SIZE_PRESETS = {
+        vk: { width: 1177, height: 873 },
+        "vk-tgb": { width: 158, height: 300 },
+        ok: { width: 240, height: 400 },
+        mytarget: { width: 240, height: 400 },
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const clientName = params.get("client");
+      const projectName = params.get("project");
+      const initialSize = params.get("size") || "vk";
+
+      if (!clientName || !projectName) {
+        document.body.innerHTML =
+          '<div style="padding:40px;text-align:center;color:#e74c3c;">' +
+          "<h2>Ошибка</h2><p>Не указаны параметры client и project в URL.</p>" +
+          '<p style="color:#7f8c8d;margin-top:12px;">Формат: viewer.html?client=имя&project=кампания</p></div>';
+        throw new Error("Missing params");
+      }
+
+      const bannerUrl = `https://${USER}.github.io/${REPO}/${PROJECTS_PATH}/${clientName}/${projectName}/index.html`;
+      const frame = document.getElementById("banner-frame");
+      const wrapper = document.getElementById("frame-wrapper");
+      const badge = document.getElementById("size-badge");
+      const sizeSelect = document.getElementById("size-select");
+
+      document.getElementById("banner-title").textContent =
+        `${clientName} / ${projectName}`;
+      document.title = `${clientName} / ${projectName} — Просмотр баннера`;
+      frame.src = bannerUrl;
+
+      if (
+        initialSize &&
+        sizeSelect.querySelector(`option[value="${initialSize}"]`)
+      ) {
+        sizeSelect.value = initialSize;
+      }
+      onSizeChange();
+
+      function doLaunch() {
+        try {
+          frame.contentWindow.client_message_launch();
+        } catch (e) {
+          console.warn("client_message_launch() unavailable:", e);
+        }
+      }
+
+      function doPause() {
+        try {
+          frame.contentWindow.client_message_pause();
+        } catch (e) {
+          console.warn("client_message_pause() unavailable:", e);
+        }
+      }
+
+      function doResume() {
+        try {
+          frame.contentWindow.client_message_resume();
+        } catch (e) {
+          console.warn("client_message_resume() unavailable:", e);
+        }
+      }
+
+      function setSize(w, h) {
+        wrapper.style.width = w + "px";
+        wrapper.style.height = h + "px";
+        badge.textContent = `${w} × ${h}`;
+      }
+
+      function onSizeChange() {
+        const val = sizeSelect.value;
+        const customEl = document.getElementById("custom-size");
+        if (val === "custom") {
+          customEl.classList.add("active");
+          applyCustomSize();
+        } else {
+          customEl.classList.remove("active");
+          const preset = SIZE_PRESETS[val];
+          if (preset) setSize(preset.width, preset.height);
+        }
+      }
+
+      function applyCustomSize() {
+        const w = parseInt(document.getElementById("custom-w").value) || 300;
+        const h = parseInt(document.getElementById("custom-h").value) || 250;
+        setSize(w, h);
+      }
+
+      function onScaleChange() {
+        const scale = document.getElementById("scale-slider").value;
+        document.getElementById("scale-value").textContent = scale + "%";
+        wrapper.style.transform = `scale(${scale / 100})`;
+        wrapper.style.transformOrigin = "center center";
+      }
+
+      function showQR() {
+        const modal = document.getElementById("qr-modal");
+        const container = document.getElementById("qr-container");
+        container.innerHTML = "";
+
+        const qr = qrcode(0, "M");
+        qr.addData(window.location.href);
+        qr.make();
+
+        container.innerHTML = qr.createSvgTag({
+          cellSize: 5,
+          margin: 4,
+          scalable: true,
+        });
+        const svg = container.querySelector("svg");
+        if (svg) {
+          svg.style.width = "200px";
+          svg.style.height = "200px";
+        }
+
+        modal.classList.add("active");
+      }
+
+      function closeQR(e) {
+        if (!e || e.target === e.currentTarget) {
+          document.getElementById("qr-modal").classList.remove("active");
+        }
+      }
+
+      function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const btn = event.target;
+          const orig = btn.textContent;
+          btn.textContent = "Скопировано!";
+          setTimeout(() => (btn.textContent = orig), 1500);
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeQR();
+      });
+    </script>
+  </body>
+</html>

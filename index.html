@@ -2,55 +2,165 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Демонстрация баннеров</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Админка — Демонстрация баннеров</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: sans-serif;
-        padding: 40px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        padding: 40px 20px;
         background: #f4f4f9;
       }
+
       .container {
-        max-width: 800px;
+        max-width: 860px;
         margin: 0 auto;
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
+
       h1 {
         color: #333;
+        margin-bottom: 8px;
       }
-      .banner-link {
-        display: block;
-        padding: 15px;
+
+      .subtitle {
+        color: #888;
+        font-size: 14px;
+        margin-bottom: 24px;
+      }
+
+      .banner-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px 20px;
         margin: 10px 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        transition: border-color 0.2s;
+      }
+
+      .banner-card:hover {
+        border-color: #2980b9;
+      }
+
+      .banner-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .banner-name {
+        font-size: 16px;
+        color: #333;
+      }
+
+      .banner-name strong {
+        color: #2980b9;
+      }
+
+      .banner-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 6px 14px;
         border: 1px solid #ddd;
         border-radius: 5px;
+        background: #fff;
+        color: #555;
+        font-size: 13px;
+        cursor: pointer;
         text-decoration: none;
-        color: #007bff;
-        transition: 0.2s;
+        transition: all 0.15s;
+        white-space: nowrap;
       }
-      .banner-link:hover {
+
+      .btn:hover {
         background: #f0f7ff;
-        border-color: #007bff;
+        border-color: #2980b9;
+        color: #2980b9;
       }
-      .meta {
-        font-size: 0.8em;
-        color: #666;
-        margin-top: 5px;
+      .btn.primary {
+        background: #2980b9;
+        color: #fff;
+        border-color: #2980b9;
+      }
+      .btn.primary:hover {
+        background: #3498db;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #27ae60;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      #list {
+        min-height: 100px;
+      }
+      .loading {
+        text-align: center;
+        color: #888;
+        padding: 40px;
+      }
+      .error {
+        text-align: center;
+        color: #e74c3c;
+        padding: 40px;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Демонстрация баннеров</h1>
-      <div id="list">Загрузка проектов...</div>
+      <p class="subtitle">
+        Список доступных баннеров. Нажмите «Просмотр» для открытия с элементами
+        управления.
+      </p>
+      <div id="list"><div class="loading">Загрузка проектов...</div></div>
     </div>
+
+    <div class="toast" id="toast">Ссылка скопирована!</div>
 
     <script>
       const USER = "electronstx";
       const REPO = "banners-showcase";
       const PROJECTS_PATH = "projects";
+      const BASE = `https://${USER}.github.io/${REPO}`;
+
+      function showToast(text) {
+        const t = document.getElementById("toast");
+        t.textContent = text || "Ссылка скопирована!";
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2000);
+      }
+
+      function copyViewerLink(client, project) {
+        const url = `${BASE}/viewer.html?client=${encodeURIComponent(client)}&project=${encodeURIComponent(project)}`;
+        navigator.clipboard.writeText(url).then(() => showToast());
+      }
 
       async function loadProjects() {
         const listDiv = document.getElementById("list");
@@ -59,42 +169,55 @@
           const response = await fetch(url);
 
           if (!response.ok) {
-            throw new Error(
-              `Ошибка API: ${response.status} (Проверьте наличие папки 'projects' с файлами)`,
-            );
+            throw new Error(`Ошибка API: ${response.status}`);
           }
 
           const clients = await response.json();
           listDiv.innerHTML = "";
 
           if (clients.length === 0) {
-            listDiv.innerText = "Папка projects пуста.";
+            listDiv.innerHTML =
+              '<div class="loading">Папка projects пуста.</div>';
             return;
           }
 
           for (const client of clients) {
-            if (client.type === "dir") {
-              const pResponse = await fetch(client.url);
-              const projects = await pResponse.json();
+            if (client.type !== "dir") continue;
 
-              projects.forEach((project) => {
-                if (project.type === "dir") {
-                  const link = document.createElement("a");
-                  link.className = "banner-link";
-                  link.href = `https://${USER}.github.io/${REPO}/${PROJECTS_PATH}/${client.name}/${project.name}/index.html`;
-                  link.target = "_blank";
-                  link.innerHTML = `
-                                    <strong>${client.name}</strong> / ${project.name}
-                                    <div class="meta">Открыть в новой вкладке ↗</div>
-                                `;
-                  listDiv.appendChild(link);
-                }
-              });
+            const pResponse = await fetch(client.url);
+            const projects = await pResponse.json();
+
+            for (const project of projects) {
+              if (project.type !== "dir") continue;
+
+              const card = document.createElement("div");
+              card.className = "banner-card";
+
+              const viewerUrl = `${BASE}/viewer.html?client=${encodeURIComponent(client.name)}&project=${encodeURIComponent(project.name)}`;
+              const directUrl = `${BASE}/${PROJECTS_PATH}/${client.name}/${project.name}/index.html`;
+
+              card.innerHTML = `
+              <div class="banner-card-header">
+                <div class="banner-name"><strong>${client.name}</strong> / ${project.name}</div>
+                <div class="banner-actions">
+                  <a class="btn primary" href="${viewerUrl}" target="_blank">&#9654; Просмотр</a>
+                  <button class="btn" onclick="copyViewerLink('${client.name}', '${project.name}')">&#128203; Копировать ссылку</button>
+                  <a class="btn" href="${directUrl}" target="_blank">Напрямую &#8599;</a>
+                </div>
+              </div>
+            `;
+              listDiv.appendChild(card);
             }
           }
+
+          if (listDiv.children.length === 0) {
+            listDiv.innerHTML =
+              '<div class="loading">Нет доступных баннеров.</div>';
+          }
         } catch (e) {
-          listDiv.innerText =
-            "Ошибка загрузки проектов. Проверьте настройки API.";
+          listDiv.innerHTML =
+            '<div class="error">Ошибка загрузки проектов. Проверьте настройки API.</div>';
+          console.error(e);
         }
       }
 
