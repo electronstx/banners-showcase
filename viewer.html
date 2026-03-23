@@ -27,6 +27,7 @@
         padding: 12px 20px;
         display: flex;
         align-items: center;
+        justify-content: space-evenly;
         gap: 12px;
         flex-wrap: wrap;
         position: sticky;
@@ -133,9 +134,6 @@
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
         border-radius: 4px;
         overflow: hidden;
-        transition:
-          width 0.3s,
-          height 0.3s;
       }
 
       .frame-wrapper iframe {
@@ -391,7 +389,7 @@
       const autoFitScale = () => {
         const viewportEl = document.querySelector(".viewport");
         const availableWidth = viewportEl.clientWidth;
-        const availableHeight = viewportEl.clientHeight - 40;
+        const availableHeight = viewportEl.clientHeight;
         const wrapperWidth = parseInt(wrapper.style.width);
         const wrapperHeight = parseInt(wrapper.style.height);
 
