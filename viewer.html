@@ -392,23 +392,25 @@
         sizeSelect.value = initialSize;
       }
 
-      frame.addEventListener("load", () => {
-        try {
-          const meta = frame.contentWindow.document.querySelector(
-            'meta[name="banner-platform"]',
-          );
-          if (meta && !params.get("size")) {
-            const platform = meta.content;
-            if (sizeSelect.querySelector(`option[value="${platform}"]`)) {
-              sizeSelect.value = platform;
-              onSizeChange();
-            }
-          }
-        } catch (e) {}
-        autoFitScale();
-      });
+      frame.addEventListener("load", () => autoFitScale());
 
-      onSizeChange();
+      if (!params.get("size")) {
+        fetch(bannerUrl)
+          .then((r) => r.text())
+          .then((html) => {
+            const match = html.match(
+              /<meta[^>]+name=["']banner-platform["'][^>]+content=["']([^"']+)["']/i,
+            );
+            if (match) {
+              const platform = match[1];
+              if (sizeSelect.querySelector(`option[value="${platform}"]`)) {
+                sizeSelect.value = platform;
+                onSizeChange();
+              }
+            }
+          })
+          .catch(() => {});
+      }
 
       function doLaunch() {
         try {
