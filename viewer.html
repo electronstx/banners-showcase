@@ -124,7 +124,6 @@
         display: flex;
         align-items: flex-start;
         justify-content: center;
-        padding: 30px;
         overflow: hidden;
       }
 
@@ -393,20 +392,12 @@
         const wrapperWidth = parseInt(wrapper.style.width);
         const wrapperHeight = parseInt(wrapper.style.height);
 
-        if (
-          !wrapperWidth ||
-          !wrapperHeight ||
-          availableWidth <= 0 ||
-          availableHeight <= 0
-        )
-          return;
+        if (!wrapperWidth || !wrapperHeight || availableWidth <= 0) return;
 
         let fitScale = 100;
 
-        if (wrapperWidth > availableWidth || wrapperHeight > availableHeight) {
-          const scaleW = availableWidth / wrapperWidth;
-          const scaleH = availableHeight / wrapperHeight;
-          fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
+        if (wrapperWidth > availableWidth) {
+          fitScale = Math.floor((availableWidth / wrapperWidth) * 100);
         }
 
         fitScale = Math.max(fitScale, 10);
