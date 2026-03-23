@@ -150,11 +150,14 @@
       const PROJECTS_PATH = "projects";
       const BASE = `https://${USER}.github.io/${REPO}`;
 
+      let toastTimer = null;
+
       function showToast(text) {
         const t = document.getElementById("toast");
         t.textContent = text || "Ссылка скопирована!";
         t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 2000);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
       }
 
       function copyViewerLink(client, project) {

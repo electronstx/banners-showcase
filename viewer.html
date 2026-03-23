@@ -238,7 +238,6 @@
         }
         .viewport {
           padding: 10px;
-          align-items: flex-start;
         }
       }
     </style>
@@ -392,7 +391,23 @@
       ) {
         sizeSelect.value = initialSize;
       }
-      frame.addEventListener("load", () => autoFitScale());
+
+      frame.addEventListener("load", () => {
+        try {
+          const meta = frame.contentWindow.document.querySelector(
+            'meta[name="banner-platform"]',
+          );
+          if (meta && !params.get("size")) {
+            const platform = meta.content;
+            if (sizeSelect.querySelector(`option[value="${platform}"]`)) {
+              sizeSelect.value = platform;
+              onSizeChange();
+            }
+          }
+        } catch (e) {}
+        autoFitScale();
+      });
+
       onSizeChange();
 
       function doLaunch() {
@@ -464,10 +479,17 @@
       }
 
       function onScaleChange() {
-        const scale = document.getElementById("scale-slider").value;
-        document.getElementById("scale-value").textContent = scale + "%";
-        wrapper.style.transform = `scale(${scale / 100})`;
-        wrapper.style.transformOrigin = "center center";
+        const scale = document.getElementById("scale-slider").value / 100;
+        document.getElementById("scale-value").textContent =
+          Math.round(scale * 100) + "%";
+
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.transformOrigin = "top left";
+
+        const w = parseInt(wrapper.style.width) || 0;
+        const h = parseInt(wrapper.style.height) || 0;
+        wrapper.parentElement.style.width = w * scale + "px";
+        wrapper.parentElement.style.height = h * scale + "px";
       }
 
       function showQR() {
