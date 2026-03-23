@@ -392,18 +392,28 @@
         const viewportEl = document.querySelector(".viewport");
         const availableWidth = viewportEl.clientWidth - 20;
         const availableHeight = viewportEl.clientHeight - 40;
-
         const wrapperWidth = parseInt(wrapper.style.width);
         const wrapperHeight = parseInt(wrapper.style.height);
+        let fitScale = 100;
 
-        const scaleW = availableWidth / wrapperWidth;
-        const scaleH = availableHeight / wrapperHeight;
+        if (
+          wrapperWidth <= availableWidth &&
+          wrapperHeight <= availableHeight
+        ) {
+          fitScale = 100;
+        } else {
+          const isLandscape = wrapperWidth > wrapperHeight;
 
-        let fitScale = Math.min(scaleW, scaleH, 1.0);
+          if (isLandscape) {
+            fitScale = Math.floor((availableWidth / wrapperWidth) * 100);
+          } else {
+            const scaleW = availableWidth / wrapperWidth;
+            const scaleH = availableHeight / wrapperHeight;
+            fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
+          }
+        }
 
-        fitScale = Math.floor(fitScale * 100);
         fitScale = Math.max(fitScale, 10);
-
         document.getElementById("scale-slider").value = fitScale;
         onScaleChange();
       };
