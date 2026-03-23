@@ -118,22 +118,10 @@
         text-align: center;
       }
 
-      .banner-info {
-        padding: 8px 20px;
-        background: #16213e;
-        font-size: 13px;
-        color: #7f8c8d;
-        border-bottom: 1px solid #0f3460;
-      }
-
-      .banner-info strong {
-        color: #e0e0e0;
-      }
-
       .viewport {
         flex: 1;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         padding: 30px;
         overflow: hidden;
@@ -236,6 +224,16 @@
         .toolbar-group + .toolbar-group {
           padding-left: 8px;
         }
+        .toolbar-group {
+          flex-wrap: wrap;
+        }
+        .toolbar-label {
+          width: 100%;
+        }
+        .btn {
+          padding: 6px 10px;
+          font-size: 12px;
+        }
         .viewport {
           padding: 10px;
         }
@@ -243,10 +241,6 @@
     </style>
   </head>
   <body>
-    <div class="banner-info">
-      <strong id="banner-title">Загрузка...</strong>
-    </div>
-
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">Анимация</span>
@@ -321,7 +315,7 @@
         <button class="btn" onclick="showQR()" title="QR-код для телефона">
           &#9641; QR-код
         </button>
-        <button class="btn" onclick="copyLink()" title="Скопировать ссылку">
+        <button class="btn" onclick="copyLink(this)" title="Скопировать ссылку">
           &#128203; Копировать ссылку
         </button>
       </div>
@@ -380,8 +374,134 @@
       const badge = document.getElementById("size-badge");
       const sizeSelect = document.getElementById("size-select");
 
-      document.getElementById("banner-title").textContent =
-        `${clientName} / ${projectName}`;
+      const onScaleChange = () => {
+        const scale = document.getElementById("scale-slider").value / 100;
+        document.getElementById("scale-value").textContent =
+          Math.round(scale * 100) + "%";
+
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.transformOrigin = "top left";
+
+        const w = parseInt(wrapper.style.width) || 0;
+        const h = parseInt(wrapper.style.height) || 0;
+        wrapper.parentElement.style.width = w * scale + "px";
+        wrapper.parentElement.style.height = h * scale + "px";
+      };
+
+      const autoFitScale = () => {
+        const viewportEl = document.querySelector(".viewport");
+        const availableWidth = viewportEl.clientWidth - 20;
+        const availableHeight = viewportEl.clientHeight - 40;
+        const wrapperWidth = parseInt(wrapper.style.width);
+        const wrapperHeight = parseInt(wrapper.style.height);
+        const fitWidthOnly = ["vk", "ok", "zen"].includes(sizeSelect.value);
+        let fitScale = 100;
+        if (fitWidthOnly) {
+          fitScale = Math.floor((availableWidth / wrapperWidth) * 100);
+        } else if (
+          wrapperWidth > availableWidth ||
+          wrapperHeight > availableHeight
+        ) {
+          const scaleW = availableWidth / wrapperWidth;
+          const scaleH = availableHeight / wrapperHeight;
+          fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
+        }
+        fitScale = Math.max(fitScale, 10);
+        document.getElementById("scale-slider").value = fitScale;
+        onScaleChange();
+      };
+
+      const setSize = (w, h) => {
+        wrapper.style.width = w + "px";
+        wrapper.style.height = h + "px";
+        badge.textContent = `${w} × ${h}`;
+        autoFitScale();
+      };
+
+      const applyCustomSize = () => {
+        const w = parseInt(document.getElementById("custom-w").value) || 300;
+        const h = parseInt(document.getElementById("custom-h").value) || 250;
+        setSize(w, h);
+      };
+
+      const onSizeChange = () => {
+        const val = sizeSelect.value;
+        const customEl = document.getElementById("custom-size");
+
+        if (val === "custom") {
+          customEl.classList.add("active");
+          applyCustomSize();
+        } else {
+          customEl.classList.remove("active");
+          const preset = SIZE_PRESETS[val];
+          if (preset) setSize(preset.width, preset.height);
+        }
+      };
+
+      const doLaunch = () => {
+        try {
+          frame.contentWindow.client_message_launch();
+        } catch (e) {
+          console.warn("client_message_launch() unavailable:", e);
+        }
+      };
+
+      const doPause = () => {
+        try {
+          frame.contentWindow.client_message_pause();
+        } catch (e) {
+          console.warn("client_message_pause() unavailable:", e);
+        }
+      };
+
+      const doResume = () => {
+        try {
+          frame.contentWindow.client_message_resume();
+        } catch (e) {
+          console.warn("client_message_resume() unavailable:", e);
+        }
+      };
+
+      const showQR = () => {
+        const container = document.getElementById("qr-container");
+        container.innerHTML = "";
+
+        const qr = qrcode(0, "M");
+        qr.addData(window.location.href);
+        qr.make();
+
+        container.innerHTML = qr.createSvgTag({
+          cellSize: 5,
+          margin: 4,
+          scalable: true,
+        });
+
+        const svg = container.querySelector("svg");
+        if (svg) {
+          svg.style.width = "200px";
+          svg.style.height = "200px";
+        }
+
+        document.getElementById("qr-modal").classList.add("active");
+      };
+
+      const closeQR = (e) => {
+        if (!e || e.target === e.currentTarget) {
+          document.getElementById("qr-modal").classList.remove("active");
+        }
+      };
+
+      const copyLink = (btn) => {
+        navigator.clipboard
+          .writeText(window.location.href)
+          .then(() => {
+            const orig = btn.textContent;
+            btn.textContent = "Скопировано!";
+            setTimeout(() => (btn.textContent = orig), 1500);
+          })
+          .catch(() => console.warn("Clipboard API недоступен"));
+      };
+
       document.title = `${clientName} / ${projectName} — Просмотр баннера`;
       frame.src = bannerUrl;
 
@@ -414,134 +534,11 @@
           .catch(() => {});
       }
 
-      function doLaunch() {
-        try {
-          frame.contentWindow.client_message_launch();
-        } catch (e) {
-          console.warn("client_message_launch() unavailable:", e);
-        }
-      }
-
-      function doPause() {
-        try {
-          frame.contentWindow.client_message_pause();
-        } catch (e) {
-          console.warn("client_message_pause() unavailable:", e);
-        }
-      }
-
-      function doResume() {
-        try {
-          frame.contentWindow.client_message_resume();
-        } catch (e) {
-          console.warn("client_message_resume() unavailable:", e);
-        }
-      }
-
-      function setSize(w, h) {
-        wrapper.style.width = w + "px";
-        wrapper.style.height = h + "px";
-        badge.textContent = `${w} × ${h}`;
-        autoFitScale();
-      }
-
-      function autoFitScale() {
-        const viewportEl = document.querySelector(".viewport");
-        const availableWidth = viewportEl.clientWidth - 20;
-        const availableHeight = viewportEl.clientHeight - 40;
-        const wrapperWidth = parseInt(wrapper.style.width);
-        const wrapperHeight = parseInt(wrapper.style.height);
-        let fitScale = 100;
-        if (wrapperWidth > availableWidth || wrapperHeight > availableHeight) {
-          const scaleW = availableWidth / wrapperWidth;
-          const scaleH = availableHeight / wrapperHeight;
-          fitScale = Math.floor(Math.min(scaleW, scaleH) * 100);
-          fitScale = Math.max(fitScale, 10);
-        }
-        const slider = document.getElementById("scale-slider");
-        slider.value = fitScale;
-        onScaleChange();
-      }
-
-      function onSizeChange() {
-        const val = sizeSelect.value;
-        const customEl = document.getElementById("custom-size");
-        if (val === "custom") {
-          customEl.classList.add("active");
-          applyCustomSize();
-        } else {
-          customEl.classList.remove("active");
-          const preset = SIZE_PRESETS[val];
-          if (preset) setSize(preset.width, preset.height);
-        }
-      }
-
-      function applyCustomSize() {
-        const w = parseInt(document.getElementById("custom-w").value) || 300;
-        const h = parseInt(document.getElementById("custom-h").value) || 250;
-        setSize(w, h);
-      }
-
-      function onScaleChange() {
-        const scale = document.getElementById("scale-slider").value / 100;
-        document.getElementById("scale-value").textContent =
-          Math.round(scale * 100) + "%";
-
-        wrapper.style.transform = `scale(${scale})`;
-        wrapper.style.transformOrigin = "top left";
-
-        const w = parseInt(wrapper.style.width) || 0;
-        const h = parseInt(wrapper.style.height) || 0;
-        wrapper.parentElement.style.width = w * scale + "px";
-        wrapper.parentElement.style.height = h * scale + "px";
-      }
-
-      function showQR() {
-        const modal = document.getElementById("qr-modal");
-        const container = document.getElementById("qr-container");
-        container.innerHTML = "";
-
-        const qr = qrcode(0, "M");
-        qr.addData(window.location.href);
-        qr.make();
-
-        container.innerHTML = qr.createSvgTag({
-          cellSize: 5,
-          margin: 4,
-          scalable: true,
-        });
-
-        const svg = container.querySelector("svg");
-        if (svg) {
-          svg.style.width = "200px";
-          svg.style.height = "200px";
-        }
-
-        modal.classList.add("active");
-      }
-
-      function closeQR(e) {
-        if (!e || e.target === e.currentTarget) {
-          document.getElementById("qr-modal").classList.remove("active");
-        }
-      }
-
-      function copyLink() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-          const btn = event.target;
-          const orig = btn.textContent;
-          btn.textContent = "Скопировано!";
-          setTimeout(() => (btn.textContent = orig), 1500);
-        });
-      }
-
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeQR();
       });
 
-      window.addEventListener("resize", () => {
-        autoFitScale();
-      });
+      window.addEventListener("resize", () => autoFitScale());
     </script>
   </body>
 </html>

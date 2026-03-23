@@ -152,20 +152,31 @@
 
       let toastTimer = null;
 
-      function showToast(text) {
+      const escapeHtml = (str) =>
+        str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      const showToast = (text) => {
         const t = document.getElementById("toast");
         t.textContent = text || "Ссылка скопирована!";
         t.classList.add("show");
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
-      }
+      };
 
-      function copyViewerLink(client, project) {
+      const copyViewerLink = (client, project) => {
         const url = `${BASE}/viewer.html?client=${encodeURIComponent(client)}&project=${encodeURIComponent(project)}`;
-        navigator.clipboard.writeText(url).then(() => showToast());
-      }
+        navigator.clipboard
+          .writeText(url)
+          .then(() => showToast())
+          .catch(() => console.warn("Clipboard API недоступен"));
+      };
 
-      async function loadProjects() {
+      const loadProjects = async () => {
         const listDiv = document.getElementById("list");
         try {
           const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${PROJECTS_PATH}`;
@@ -193,18 +204,20 @@
             for (const project of projects) {
               if (project.type !== "dir") continue;
 
-              const card = document.createElement("div");
-              card.className = "banner-card";
+              const safeClient = escapeHtml(client.name);
+              const safeProject = escapeHtml(project.name);
 
               const viewerUrl = `${BASE}/viewer.html?client=${encodeURIComponent(client.name)}&project=${encodeURIComponent(project.name)}`;
-              const directUrl = `${BASE}/${PROJECTS_PATH}/${client.name}/${project.name}/index.html`;
+              const directUrl = `${BASE}/${PROJECTS_PATH}/${encodeURIComponent(client.name)}/${encodeURIComponent(project.name)}/index.html`;
 
+              const card = document.createElement("div");
+              card.className = "banner-card";
               card.innerHTML = `
               <div class="banner-card-header">
-                <div class="banner-name"><strong>${client.name}</strong> / ${project.name}</div>
+                <div class="banner-name"><strong>${safeClient}</strong> / ${safeProject}</div>
                 <div class="banner-actions">
                   <a class="btn primary" href="${viewerUrl}" target="_blank">&#9654; Просмотр</a>
-                  <button class="btn" onclick="copyViewerLink('${client.name}', '${project.name}')">&#128203; Копировать ссылку</button>
+                  <button class="btn" onclick="copyViewerLink('${safeClient}', '${safeProject}')">&#128203; Копировать ссылку</button>
                   <a class="btn" href="${directUrl}" target="_blank">Напрямую &#8599;</a>
                 </div>
               </div>
@@ -222,7 +235,7 @@
             '<div class="error">Ошибка загрузки проектов. Проверьте настройки API.</div>';
           console.error(e);
         }
-      }
+      };
 
       loadProjects();
     </script>
