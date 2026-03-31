@@ -8237,7 +8237,7 @@ var e = /*#__PURE__*/function () {
     value: function onResume() {}
   }]);
 }();
-var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
+var h = "" + new URL("spritesheet-CSLBF_o6.png", location.href).href,
   o = {
     frames: {
       "hand.png": {
@@ -8264,24 +8264,24 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
           y: .5
         }
       },
-      "logo.png": {
+      "you-fan-empty.png": {
         frame: {
-          x: 2,
-          y: 289,
-          w: 480,
-          h: 97
+          x: 270,
+          y: 2,
+          w: 344,
+          h: 194
         },
         rotated: !1,
-        trimmed: !0,
+        trimmed: !1,
         spriteSourceSize: {
           x: 0,
-          y: 3,
-          w: 480,
-          h: 97
+          y: 0,
+          w: 344,
+          h: 194
         },
         sourceSize: {
-          w: 480,
-          h: 102
+          w: 344,
+          h: 194
         },
         pivot: {
           x: .5,
@@ -8291,7 +8291,7 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
       "helm.png": {
         frame: {
           x: 270,
-          y: 2,
+          y: 200,
           w: 246,
           h: 259
         },
@@ -8312,10 +8312,82 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
           y: .5
         }
       },
+      "you-defender-empty.png": {
+        frame: {
+          x: 2,
+          y: 463,
+          w: 293,
+          h: 216
+        },
+        rotated: !1,
+        trimmed: !1,
+        spriteSourceSize: {
+          x: 0,
+          y: 0,
+          w: 293,
+          h: 216
+        },
+        sourceSize: {
+          w: 293,
+          h: 216
+        },
+        pivot: {
+          x: .5,
+          y: .5
+        }
+      },
+      "you-forward-empty.png": {
+        frame: {
+          x: 299,
+          y: 463,
+          w: 299,
+          h: 194
+        },
+        rotated: !1,
+        trimmed: !1,
+        spriteSourceSize: {
+          x: 0,
+          y: 0,
+          w: 299,
+          h: 194
+        },
+        sourceSize: {
+          w: 299,
+          h: 194
+        },
+        pivot: {
+          x: .5,
+          y: .5
+        }
+      },
+      "logo.png": {
+        frame: {
+          x: 299,
+          y: 661,
+          w: 480,
+          h: 97
+        },
+        rotated: !1,
+        trimmed: !0,
+        spriteSourceSize: {
+          x: 0,
+          y: 3,
+          w: 480,
+          h: 97
+        },
+        sourceSize: {
+          w: 480,
+          h: 102
+        },
+        pivot: {
+          x: .5,
+          y: .5
+        }
+      },
       "shaiba.png": {
         frame: {
-          x: 486,
-          y: 265,
+          x: 520,
+          y: 200,
           w: 185,
           h: 234
         },
@@ -8338,8 +8410,8 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
       },
       "button-forward.png": {
         frame: {
-          x: 520,
-          y: 2,
+          x: 2,
+          y: 289,
           w: 230,
           h: 99
         },
@@ -8359,78 +8431,6 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
           x: .5,
           y: .5
         }
-      },
-      "you-fan-empty.png": {
-        frame: {
-          x: 520,
-          y: 105,
-          w: 229,
-          h: 129
-        },
-        rotated: !1,
-        trimmed: !1,
-        spriteSourceSize: {
-          x: 0,
-          y: 0,
-          w: 229,
-          h: 129
-        },
-        sourceSize: {
-          w: 229,
-          h: 129
-        },
-        pivot: {
-          x: .5,
-          y: .5
-        }
-      },
-      "you-defender-empty.png": {
-        frame: {
-          x: 2,
-          y: 390,
-          w: 195,
-          h: 144
-        },
-        rotated: !1,
-        trimmed: !1,
-        spriteSourceSize: {
-          x: 0,
-          y: 0,
-          w: 195,
-          h: 144
-        },
-        sourceSize: {
-          w: 195,
-          h: 144
-        },
-        pivot: {
-          x: .5,
-          y: .5
-        }
-      },
-      "you-forward-empty.png": {
-        frame: {
-          x: 201,
-          y: 390,
-          w: 199,
-          h: 129
-        },
-        rotated: !1,
-        trimmed: !1,
-        spriteSourceSize: {
-          x: 0,
-          y: 0,
-          w: 199,
-          h: 129
-        },
-        sourceSize: {
-          w: 199,
-          h: 129
-        },
-        pivot: {
-          x: .5,
-          y: .5
-        }
       }
     },
     meta: {
@@ -8439,8 +8439,8 @@ var h = "" + new URL("spritesheet-BMdbPXZb.png", location.href).href,
       image: "spritesheet.png",
       format: "RGBA8888",
       size: {
-        w: 752,
-        h: 536
+        w: 781,
+        h: 760
       },
       scale: 1
     }
@@ -9355,7 +9355,7 @@ function _O(t) {
   }), this.engine.updateObject(_classPrivateFieldGet(_s2, this), {
     x: t - s.youForward.rightOffset,
     y: s.youForward.y,
-    scale: s.youForward.scale
+    scale: s.youForward.scale / 1.5
   });
   var e = t - s.youForward.rightOffset,
     h = s.youForward.y,
@@ -9378,7 +9378,7 @@ function _O(t) {
   }), this.engine.updateObject(_classPrivateFieldGet(_e2, this), {
     x: t - s.youFan.rightOffset,
     y: s.youFan.y,
-    scale: s.youFan.scale
+    scale: s.youFan.scale / 1.5
   });
   var l = t - s.youFan.rightOffset,
     S = s.youFan.y,
@@ -9401,7 +9401,7 @@ function _O(t) {
   }), this.engine.updateObject(_classPrivateFieldGet(_h, this), {
     x: t - s.youDefender.rightOffset,
     y: s.youDefender.y,
-    scale: s.youDefender.scale
+    scale: s.youDefender.scale / 1.5
   });
   var T = t - s.youDefender.rightOffset,
     I = s.youDefender.y,
@@ -9972,9 +9972,9 @@ var T = /*#__PURE__*/function () {
     }
   }]);
 }();
-var _P = /*#__PURE__*/new WeakMap();
 var _j = /*#__PURE__*/new WeakMap();
 var _B = /*#__PURE__*/new WeakMap();
+var _P = /*#__PURE__*/new WeakMap();
 var _L = /*#__PURE__*/new WeakMap();
 var _D2 = /*#__PURE__*/new WeakMap();
 var _ = /*#__PURE__*/new WeakMap();
@@ -9987,9 +9987,9 @@ var I = /*#__PURE__*/function () {
     var _this6 = this;
     _classCallCheck(this, I);
     _classPrivateMethodInitSpec(this, _I_brand);
-    _classPrivateFieldInitSpec(this, _P, new Map());
     _classPrivateFieldInitSpec(this, _j, new Map());
-    _classPrivateFieldInitSpec(this, _B, new Set());
+    _classPrivateFieldInitSpec(this, _B, new Map());
+    _classPrivateFieldInitSpec(this, _P, new Set());
     _classPrivateFieldInitSpec(this, _L, new Set());
     _classPrivateFieldInitSpec(this, _D2, void 0);
     _classPrivateFieldInitSpec(this, _, 0);
@@ -10008,15 +10008,15 @@ var I = /*#__PURE__*/function () {
       var e = _classPrivateFieldGet(_Y, _this6).call(_this6);
       for (var o = 0; o < e.length; o++) {
         var _t6 = e[o];
-        !_t6.visible || _t6.alpha <= 0 || _classPrivateFieldGet(_j, _this6).has(_t6.id) && _assertClassBrand(_I_brand, _this6, _N).call(_this6, _t6, i.x, i.y) && _classPrivateFieldGet(_L, _this6).add(_t6.id);
+        !_t6.visible || _t6.alpha <= 0 || _classPrivateFieldGet(_B, _this6).has(_t6.id) && _assertClassBrand(_I_brand, _this6, _N).call(_this6, _t6, i.x, i.y) && _classPrivateFieldGet(_L, _this6).add(_t6.id);
       }
-      var _iterator3 = _createForOfIteratorHelper(_classPrivateFieldGet(_B, _this6)),
+      var _iterator3 = _createForOfIteratorHelper(_classPrivateFieldGet(_P, _this6)),
         _step3;
       try {
         for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
           var _classPrivateFieldGet5;
           var _o3 = _step3.value;
-          _classPrivateFieldGet(_L, _this6).has(_o3) || ((_classPrivateFieldGet5 = _classPrivateFieldGet(_j, _this6).get(_o3)) === null || _classPrivateFieldGet5 === void 0 ? void 0 : _classPrivateFieldGet5.onLeave());
+          _classPrivateFieldGet(_L, _this6).has(_o3) || ((_classPrivateFieldGet5 = _classPrivateFieldGet(_B, _this6).get(_o3)) === null || _classPrivateFieldGet5 === void 0 ? void 0 : _classPrivateFieldGet5.onLeave());
         }
       } catch (err) {
         _iterator3.e(err);
@@ -10029,50 +10029,50 @@ var I = /*#__PURE__*/function () {
         for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
           var _classPrivateFieldGet6;
           var _o4 = _step4.value;
-          _classPrivateFieldGet(_B, _this6).has(_o4) || ((_classPrivateFieldGet6 = _classPrivateFieldGet(_j, _this6).get(_o4)) === null || _classPrivateFieldGet6 === void 0 ? void 0 : _classPrivateFieldGet6.onEnter());
+          _classPrivateFieldGet(_P, _this6).has(_o4) || ((_classPrivateFieldGet6 = _classPrivateFieldGet(_B, _this6).get(_o4)) === null || _classPrivateFieldGet6 === void 0 ? void 0 : _classPrivateFieldGet6.onEnter());
         }
       } catch (err) {
         _iterator4.e(err);
       } finally {
         _iterator4.f();
       }
-      var h = _classPrivateFieldGet(_B, _this6);
-      _classPrivateFieldSet(_B, _this6, _classPrivateFieldGet(_L, _this6)), _classPrivateFieldSet(_L, _this6, h);
+      var h = _classPrivateFieldGet(_P, _this6);
+      _classPrivateFieldSet(_P, _this6, _classPrivateFieldGet(_L, _this6)), _classPrivateFieldSet(_L, _this6, h);
     });
     _classPrivateFieldSet(_D2, this, _t5), _classPrivateFieldSet(_X, this, _i10), _classPrivateFieldSet(_Y, this, _s6);
   }
   return _createClass(I, [{
     key: "flushHovers",
     value: function flushHovers() {
-      var _iterator5 = _createForOfIteratorHelper(_classPrivateFieldGet(_B, this)),
+      var _iterator5 = _createForOfIteratorHelper(_classPrivateFieldGet(_P, this)),
         _step5;
       try {
         for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
           var _classPrivateFieldGet7;
           var _t7 = _step5.value;
-          (_classPrivateFieldGet7 = _classPrivateFieldGet(_j, this).get(_t7)) === null || _classPrivateFieldGet7 === void 0 || _classPrivateFieldGet7.onLeave();
+          (_classPrivateFieldGet7 = _classPrivateFieldGet(_B, this).get(_t7)) === null || _classPrivateFieldGet7 === void 0 || _classPrivateFieldGet7.onLeave();
         }
       } catch (err) {
         _iterator5.e(err);
       } finally {
         _iterator5.f();
       }
-      _classPrivateFieldGet(_B, this).clear();
+      _classPrivateFieldGet(_P, this).clear();
     }
   }, {
     key: "onObjectClick",
     value: function onObjectClick(t, i) {
-      _classPrivateFieldGet(_P, this).set(t.id, i);
+      _classPrivateFieldGet(_j, this).set(t.id, i);
     }
   }, {
     key: "offObjectClick",
     value: function offObjectClick(t) {
-      _classPrivateFieldGet(_P, this).delete(t.id);
+      _classPrivateFieldGet(_j, this).delete(t.id);
     }
   }, {
     key: "onObjectHover",
     value: function onObjectHover(t, i, s) {
-      _classPrivateFieldGet(_j, this).set(t.id, {
+      _classPrivateFieldGet(_B, this).set(t.id, {
         onEnter: i,
         onLeave: s
       });
@@ -10081,12 +10081,12 @@ var I = /*#__PURE__*/function () {
     key: "offObjectHover",
     value: function offObjectHover(t) {
       var _classPrivateFieldGet8;
-      _classPrivateFieldGet(_B, this).has(t.id) && ((_classPrivateFieldGet8 = _classPrivateFieldGet(_j, this).get(t.id)) !== null && _classPrivateFieldGet8 !== void 0 && _classPrivateFieldGet8.onLeave(), _classPrivateFieldGet(_B, this).delete(t.id)), _classPrivateFieldGet(_j, this).delete(t.id);
+      _classPrivateFieldGet(_P, this).has(t.id) && ((_classPrivateFieldGet8 = _classPrivateFieldGet(_B, this).get(t.id)) !== null && _classPrivateFieldGet8 !== void 0 && _classPrivateFieldGet8.onLeave(), _classPrivateFieldGet(_P, this).delete(t.id)), _classPrivateFieldGet(_B, this).delete(t.id);
     }
   }, {
     key: "clear",
     value: function clear() {
-      this.flushHovers(), _classPrivateFieldGet(_P, this).clear(), _classPrivateFieldGet(_j, this).clear();
+      this.flushHovers(), _classPrivateFieldGet(_j, this).clear(), _classPrivateFieldGet(_B, this).clear();
     }
   }]);
 }();
@@ -10097,7 +10097,7 @@ function _U(t) {
     e = _assertClassBrand(_I_brand, this, _q).call(this, i, s);
   if (!e) return;
   var h = _assertClassBrand(_I_brand, this, _G).call(this, e.x, e.y);
-  h && ((_classPrivateFieldGet12 = _classPrivateFieldGet(_P, this).get(h.id)) !== null && _classPrivateFieldGet12 !== void 0 && _classPrivateFieldGet12(), t.cancelable && t.preventDefault());
+  h && ((_classPrivateFieldGet12 = _classPrivateFieldGet(_j, this).get(h.id)) !== null && _classPrivateFieldGet12 !== void 0 && _classPrivateFieldGet12(), t.cancelable && t.preventDefault());
 }
 function _q(t, i) {
   var s = _classPrivateFieldGet(_X, this).call(this);
@@ -10120,7 +10120,7 @@ function _G(t, i) {
   var s = _classPrivateFieldGet(_Y, this).call(this);
   for (var e = s.length - 1; e >= 0; e--) {
     var h = s[e];
-    if (h.visible && !(h.alpha <= 0) && _classPrivateFieldGet(_P, this).has(h.id) && _assertClassBrand(_I_brand, this, _N).call(this, h, t, i)) return h;
+    if (h.visible && !(h.alpha <= 0) && _classPrivateFieldGet(_j, this).has(h.id) && _assertClassBrand(_I_brand, this, _N).call(this, h, t, i)) return h;
   }
   return null;
 }
