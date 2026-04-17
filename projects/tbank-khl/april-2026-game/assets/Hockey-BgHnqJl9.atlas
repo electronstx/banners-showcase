@@ -1,0 +1,68 @@
+Hockey.webp
+size:468,1020
+filter:Linear,Linear
+arm_2_down
+bounds:296,197,68,107
+offsets:66,1,134,108
+rotate:90
+arm_down
+bounds:2,491,228,207
+offsets:0,1,228,208
+arm_down_2
+bounds:2,282,228,207
+offsets:0,1,228,208
+arm_down_up
+bounds:232,267,228,172
+arms
+bounds:2,858,346,160
+bear_head
+bounds:112,18,118,104
+rotate:90
+bear_head 2
+bounds:344,544,120,104
+bear_head sad
+bounds:350,900,116,118
+butt
+bounds:350,822,114,76
+hand_down
+bounds:396,2,49,54
+offsets:0,0,52,54
+rotate:90
+hawk_head
+bounds:342,444,98,92
+rotate:90
+hawk_head 2
+bounds:296,105,102,90
+hawk_head sad
+bounds:292,13,102,90
+left leg
+bounds:218,91,54,72
+rotate:90
+left shoe
+bounds:400,53,80,64
+rotate:90
+leopard_head
+bounds:192,147,118,102
+offsets:20,0,138,108
+rotate:90
+leopard_head 2
+bounds:232,441,127,108
+offsets:28,5,161,124
+rotate:90
+leopard_head sad
+bounds:2,18,108,118
+right leg
+bounds:405,135,56,64
+right shoe
+bounds:405,201,64,60
+rotate:90
+torso
+bounds:2,700,342,156
+offsets:0,24,342,180
+torso_down
+bounds:232,570,128,110
+rotate:90
+torso_up
+bounds:2,138,188,142
+vfx_2
+bounds:346,650,120,170
