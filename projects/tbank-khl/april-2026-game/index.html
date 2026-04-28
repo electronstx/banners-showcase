@@ -19,7 +19,85 @@
                 padding: 0;
                 overflow: hidden;
 
-                background-color: black;
+                background: #ffdd2d;
+            }
+
+            #boot-loader {
+                position: fixed;
+                inset: 0;
+                z-index: 2147483647;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                background: #ffdd2d;
+                color: #333333;
+                font-family: Arial, sans-serif;
+                font-size: 24px;
+                font-weight: 700;
+                opacity: 1;
+                transition: opacity 0.18s ease;
+            }
+
+            .boot-loader__text {
+                line-height: 1;
+            }
+
+            .boot-loader__spinner {
+                width: 56px;
+                height: 56px;
+                position: relative;
+                border-radius: 50%;
+                animation: boot-spinner-rotate 1.2s linear infinite;
+            }
+
+            .boot-loader__spinner::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 4px solid rgba(255, 255, 255, 0.2);
+                box-sizing: border-box;
+            }
+
+            .boot-loader__spinner::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 4px solid transparent;
+                border-top-color: #ffffff;
+                border-right-color: #ffffff;
+                box-sizing: border-box;
+                transform: rotate(-20deg);
+                animation: boot-spinner-sweep 1.2s ease-in-out infinite;
+            }
+
+            @keyframes boot-spinner-rotate {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @keyframes boot-spinner-sweep {
+                0% {
+                    transform: rotate(-20deg) scale(1);
+                    clip-path: inset(0 50% 50% 0);
+                }
+                25% {
+                    clip-path: inset(0 0 50% 0);
+                }
+                50% {
+                    clip-path: inset(0 0 0 0);
+                }
+                75% {
+                    clip-path: inset(50% 0 0 0);
+                }
+                100% {
+                    transform: rotate(340deg) scale(1);
+                    clip-path: inset(50% 50% 0 0);
+                }
             }
 
             #root canvas {
@@ -28,9 +106,13 @@
                 touch-action: none;
             }
         </style>
-      <script type="module" crossorigin src="./assets/index-D9NKjp98.js"></script>
+      <script type="module" crossorigin src="./assets/index-cc-h_vjn.js"></script>
     </head>
     <body>
+        <div id="boot-loader">
+            <div class="boot-loader__spinner" aria-hidden="true"></div>
+            <div class="boot-loader__text">Загрузка</div>
+        </div>
         <div id="root"></div>
     </body>
 </html>
