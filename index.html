@@ -149,6 +149,7 @@
       const REPO = "banners-showcase";
       const PROJECTS_PATH = "projects";
       const BASE = `https://${USER}.github.io/${REPO}`;
+      const PROJECTS_LIST_URL = "projects-list.json";
 
       let toastTimer = null;
 
@@ -179,40 +180,40 @@
       const loadProjects = async () => {
         const listDiv = document.getElementById("list");
         try {
-          const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${PROJECTS_PATH}`;
-          const response = await fetch(url);
-
+          const response = await fetch(PROJECTS_LIST_URL);
           if (!response.ok) {
-            throw new Error(`Ошибка API: ${response.status}`);
+            throw new Error(
+              `Не удалось загрузить ${PROJECTS_LIST_URL}: ${response.status}`,
+            );
           }
 
-          const clients = await response.json();
+          const items = await response.json();
           listDiv.innerHTML = "";
 
-          if (clients.length === 0) {
+          if (!Array.isArray(items) || items.length === 0) {
             listDiv.innerHTML =
-              '<div class="loading">Папка projects пуста.</div>';
+              '<div class="loading">Нет доступных баннеров. Добавьте проекты в папку projects/.</div>';
             return;
           }
 
-          for (const client of clients) {
-            if (client.type !== "dir") continue;
+          for (const item of items) {
+            if (
+              !item ||
+              typeof item.client !== "string" ||
+              typeof item.project !== "string"
+            ) {
+              continue;
+            }
+            const { client, project } = item;
+            const safeClient = escapeHtml(client);
+            const safeProject = escapeHtml(project);
 
-            const pResponse = await fetch(client.url);
-            const projects = await pResponse.json();
+            const viewerUrl = `${BASE}/viewer.html?client=${encodeURIComponent(client)}&project=${encodeURIComponent(project)}`;
+            const directUrl = `${BASE}/${PROJECTS_PATH}/${encodeURIComponent(client)}/${encodeURIComponent(project)}/index.html`;
 
-            for (const project of projects) {
-              if (project.type !== "dir") continue;
-
-              const safeClient = escapeHtml(client.name);
-              const safeProject = escapeHtml(project.name);
-
-              const viewerUrl = `${BASE}/viewer.html?client=${encodeURIComponent(client.name)}&project=${encodeURIComponent(project.name)}`;
-              const directUrl = `${BASE}/${PROJECTS_PATH}/${encodeURIComponent(client.name)}/${encodeURIComponent(project.name)}/index.html`;
-
-              const card = document.createElement("div");
-              card.className = "banner-card";
-              card.innerHTML = `
+            const card = document.createElement("div");
+            card.className = "banner-card";
+            card.innerHTML = `
               <div class="banner-card-header">
                 <div class="banner-name"><strong>${safeClient}</strong> / ${safeProject}</div>
                 <div class="banner-actions">
@@ -222,8 +223,7 @@
                 </div>
               </div>
             `;
-              listDiv.appendChild(card);
-            }
+            listDiv.appendChild(card);
           }
 
           if (listDiv.children.length === 0) {
@@ -232,7 +232,7 @@
           }
         } catch (e) {
           listDiv.innerHTML =
-            '<div class="error">Ошибка загрузки проектов. Проверьте настройки API.</div>';
+            '<div class="error">Ошибка загрузки списка. Убедитесь, что опубликован файл projects-list.json (workflow в репозитории или локально: node scripts/generate-projects-list.mjs).</div>';
           console.error(e);
         }
       };

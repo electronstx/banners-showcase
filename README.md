@@ -11,6 +11,11 @@
 ```text
 index.html          — витрина со списком всех баннеров
 viewer.html         — интерактивный просмотрщик отдельного баннера
+projects-list.json  — сгенерированный список баннеров для витрины
+scripts/
+└── generate-projects-list.mjs  — сборка projects-list.json из папки projects/
+.github/workflows/
+└── update-projects-list.yml    — CI: обновление JSON при изменениях в projects/
 projects/
 └── [имя-клиента]/
     └── [название-проекта]/
@@ -22,11 +27,11 @@ projects/
 1. Создать папку клиента в `/projects/` (если её нет).
 2. Внутри создать папку для конкретной кампании.
 3. Загрузить туда `index.html`.
-4. Витрина на главной странице обновится автоматически в течение 1–2 минут (после того как GitHub Pages пересоберёт сайт).
+4. После пуша в ветку `main` или `master` workflow **Update projects list** пересоберёт `projects-list.json` и при необходимости закоммитит его; затем GitHub Pages отдаст обновлённую главную (обычно 1–2 минуты). Без CI можно локально выполнить `node scripts/generate-projects-list.mjs` и закоммитить `projects-list.json` вручную.
 
 ## 📋 Главная страница (`index.html`)
 
-Витрина динамически загружает список всех баннеров из репозитория через GitHub REST API и отображает их в виде карточек. Для каждого баннера доступны действия:
+Витрина загружает статический **`projects-list.json`** с того же сайта (без GitHub REST API и лимитов API у посетителей). В список попадают только пары папок `projects/[клиент]/[проект]/`, где есть `index.html`. Для каждого баннера доступны действия:
 
 - **Просмотр** — открывает баннер в `viewer.html` с инструментами управления.
 - **Копировать ссылку** — копирует ссылку на viewer в буфер обмена.
@@ -69,7 +74,15 @@ projects/
 
 ## ⚙️ Техническая информация
 
-**Frontend:** Vanilla JS + GitHub REST API.  
+**Frontend:** Vanilla JS; данные витрины — статический JSON.  
 **Hosting:** GitHub Pages.  
 **Зависимости:** [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (CDN).  
-**Обновление:** Динамическое — скрипт сканирует содержимое репозитория при загрузке страницы.
+**Обновление списка:** workflow при изменениях в `projects/` запускает `scripts/generate-projects-list.mjs` и коммитит обновлённый `projects-list.json`, если файл изменился.
+
+### Локальная проверка витрины
+
+Открывайте сайт через HTTP (например `npx serve .`), а не через `file://`, иначе браузер может не загрузить `projects-list.json`.
+
+### GitHub Actions
+
+В настройках репозитория: **Settings → Actions → General → Workflow permissions** включите **Read and write permissions**, чтобы workflow мог пушить коммит с обновлённым `projects-list.json`.

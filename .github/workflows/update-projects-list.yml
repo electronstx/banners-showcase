@@ -1,0 +1,37 @@
+name: Update projects list
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "projects/**"
+      - "scripts/generate-projects-list.mjs"
+      - ".github/workflows/update-projects-list.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate projects-list.json
+        run: node scripts/generate-projects-list.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add projects-list.json
+          if git diff --staged --quiet; then
+            echo "projects-list.json already up to date"
+          else
+            git commit -m "chore: regenerate projects-list.json"
+            git push
+          fi
