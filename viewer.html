@@ -403,7 +403,7 @@
             sandbox="allow-scripts allow-same-origin"
           ></iframe>
           <div class="stats-panel" id="stats-panel" aria-live="polite">
-            <div class="stats-panel__title">Производительность</motion.div>
+            <div class="stats-panel__title">Производительность</div>
             <div class="stats-row">
               <span class="stats-label">FPS</span>
               <span class="stats-value" id="stat-fps">—</span>
@@ -413,24 +413,16 @@
               <span class="stats-value" id="stat-draws">—</span>
             </div>
             <div class="stats-row">
-              <span class="stats-label">Canvas (буфер)</span>
-              <span class="stats-value" id="stat-canvas">—</span>
-            </div>
-            <div class="stats-row">
-              <span class="stats-label">Canvas (CSS)</span>
+              <span class="stats-label">Canvas</span>
               <span class="stats-value" id="stat-display">—</span>
             </div>
-            <motion.div class="stats-row">
+            <div class="stats-row">
               <span class="stats-label">DPR</span>
               <span class="stats-value" id="stat-dpr">—</span>
             </div>
             <div class="stats-row">
-              <span class="stats-label">Платформа (meta)</span>
+              <span class="stats-label">Платформа</span>
               <span class="stats-value" id="stat-platform">—</span>
-            </div>
-            <div class="stats-row">
-              <span class="stats-label">Пресет viewer</span>
-              <span class="stats-value" id="stat-preset">—</span>
             </div>
             <div class="stats-row">
               <span class="stats-label">Масштаб viewer</span>
@@ -498,14 +490,13 @@
       const statsToggleBtn = document.getElementById("stats-toggle");
       const statFps = document.getElementById("stat-fps");
       const statDraws = document.getElementById("stat-draws");
-      const statCanvas = document.getElementById("stat-canvas");
       const statDisplay = document.getElementById("stat-display");
       const statDpr = document.getElementById("stat-dpr");
       const statPlatform = document.getElementById("stat-platform");
-      const statPreset = document.getElementById("stat-preset");
       const statScale = document.getElementById("stat-scale");
 
-      const perfScriptUrl = new URL("showcase-perf.js", window.location.href).href;
+      const perfScriptUrl = new URL("showcase-perf.js", window.location.href)
+        .href;
 
       const fpsClass = (fps) => {
         if (fps >= 55) return "stats-value--good";
@@ -516,8 +507,10 @@
       const getPresetLabel = () => {
         const val = sizeSelect.value;
         if (val === "custom") {
-          const w = parseInt(document.getElementById("custom-w").value, 10) || 0;
-          const h = parseInt(document.getElementById("custom-h").value, 10) || 0;
+          const w =
+            parseInt(document.getElementById("custom-w").value, 10) || 0;
+          const h =
+            parseInt(document.getElementById("custom-h").value, 10) || 0;
           return `Свой (${w}×${h})`;
         }
         const preset = SIZE_PRESETS[val];
@@ -525,7 +518,6 @@
       };
 
       const updateViewerContextStats = () => {
-        statPreset.textContent = getPresetLabel();
         const scale = document.getElementById("scale-slider").value;
         statScale.textContent = scale + "%";
       };
@@ -536,7 +528,6 @@
         if (!lastBannerStats) {
           statFps.textContent = "—";
           statDraws.textContent = "—";
-          statCanvas.textContent = "—";
           statDisplay.textContent = "—";
           statDpr.textContent = "—";
           statPlatform.textContent = "—";
@@ -549,7 +540,6 @@
         statFps.className = "stats-value " + fpsClass(s.fps);
         statDraws.textContent = String(s.drawCalls);
         statDraws.className = "stats-value";
-        statCanvas.textContent = `${s.canvasWidth}×${s.canvasHeight}`;
         statDisplay.textContent = `${s.displayWidth}×${s.displayHeight}`;
         statDpr.textContent = Number(s.dpr).toFixed(1);
         statPlatform.textContent = s.platform || "—";
@@ -557,8 +547,13 @@
 
       const destroyPerfInFrame = () => {
         try {
-          frame.contentWindow?.__showcasePerfDestroy?.();
+          const win = frame.contentWindow;
+          win?.__showcasePerfDestroy?.();
+
+          const doc = frame.contentDocument;
+          doc?.querySelector('script[data-showcase-perf="1"]')?.remove();
         } catch {
+          /* cross-origin */
         }
       };
 

@@ -90,8 +90,6 @@
         fps,
         drawCalls: frameDrawCalls,
         platform: getPlatform(),
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height,
         displayWidth,
         displayHeight,
         dpr,
