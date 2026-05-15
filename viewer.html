@@ -213,6 +213,72 @@
         text-align: center;
       }
 
+      .stats-panel {
+        display: none;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 20;
+        min-width: 200px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: rgba(22, 33, 62, 0.92);
+        border: 1px solid #0f3460;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #e0e0e0;
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+      }
+
+      .stats-panel.visible {
+        display: block;
+      }
+
+      .stats-panel__title {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #7f8c8d;
+        margin-bottom: 6px;
+      }
+
+      .stats-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .stats-row + .stats-row {
+        margin-top: 2px;
+      }
+
+      .stats-label {
+        color: #95a5a6;
+      }
+
+      .stats-value {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        text-align: right;
+      }
+
+      .stats-value--good {
+        color: #2ecc71;
+      }
+      .stats-value--warn {
+        color: #f39c12;
+      }
+      .stats-value--bad {
+        color: #e74c3c;
+      }
+
+      .btn.active-stats {
+        background: #1a365d;
+        border-color: #2ecc71;
+        color: #2ecc71;
+      }
+
       @media (max-width: 900px) {
         .toolbar {
           padding: 8px 12px;
@@ -312,6 +378,14 @@
       </div>
 
       <div class="toolbar-group">
+        <button
+          class="btn"
+          id="stats-toggle"
+          type="button"
+          title="Показать FPS и draw calls"
+        >
+          Метрики
+        </button>
         <button class="btn" onclick="showQR()" title="QR-код для телефона">
           &#9641; QR-код
         </button>
@@ -328,6 +402,41 @@
             id="banner-frame"
             sandbox="allow-scripts allow-same-origin"
           ></iframe>
+          <div class="stats-panel" id="stats-panel" aria-live="polite">
+            <div class="stats-panel__title">Производительность</motion.div>
+            <div class="stats-row">
+              <span class="stats-label">FPS</span>
+              <span class="stats-value" id="stat-fps">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Draw calls / кадр</span>
+              <span class="stats-value" id="stat-draws">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Canvas (буфер)</span>
+              <span class="stats-value" id="stat-canvas">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Canvas (CSS)</span>
+              <span class="stats-value" id="stat-display">—</span>
+            </div>
+            <motion.div class="stats-row">
+              <span class="stats-label">DPR</span>
+              <span class="stats-value" id="stat-dpr">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Платформа (meta)</span>
+              <span class="stats-value" id="stat-platform">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Пресет viewer</span>
+              <span class="stats-value" id="stat-preset">—</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-label">Масштаб viewer</span>
+              <span class="stats-value" id="stat-scale">—</span>
+            </div>
+          </div>
         </div>
         <div class="size-badge" id="size-badge"></div>
       </div>
@@ -378,6 +487,148 @@
       const badge = document.getElementById("size-badge");
       const sizeSelect = document.getElementById("size-select");
 
+      const STATS_MESSAGE_TYPE = "banner-showcase:stats";
+      const statsEnabledFromUrl =
+        params.get("stats") === "1" || params.get("stats") === "true";
+
+      let statsEnabled = statsEnabledFromUrl;
+      let lastBannerStats = null;
+
+      const statsPanel = document.getElementById("stats-panel");
+      const statsToggleBtn = document.getElementById("stats-toggle");
+      const statFps = document.getElementById("stat-fps");
+      const statDraws = document.getElementById("stat-draws");
+      const statCanvas = document.getElementById("stat-canvas");
+      const statDisplay = document.getElementById("stat-display");
+      const statDpr = document.getElementById("stat-dpr");
+      const statPlatform = document.getElementById("stat-platform");
+      const statPreset = document.getElementById("stat-preset");
+      const statScale = document.getElementById("stat-scale");
+
+      const perfScriptUrl = new URL("showcase-perf.js", window.location.href).href;
+
+      const fpsClass = (fps) => {
+        if (fps >= 55) return "stats-value--good";
+        if (fps >= 30) return "stats-value--warn";
+        return "stats-value--bad";
+      };
+
+      const getPresetLabel = () => {
+        const val = sizeSelect.value;
+        if (val === "custom") {
+          const w = parseInt(document.getElementById("custom-w").value, 10) || 0;
+          const h = parseInt(document.getElementById("custom-h").value, 10) || 0;
+          return `Свой (${w}×${h})`;
+        }
+        const preset = SIZE_PRESETS[val];
+        return preset ? `${val} (${preset.width}×${preset.height})` : val;
+      };
+
+      const updateViewerContextStats = () => {
+        statPreset.textContent = getPresetLabel();
+        const scale = document.getElementById("scale-slider").value;
+        statScale.textContent = scale + "%";
+      };
+
+      const renderStatsPanel = () => {
+        updateViewerContextStats();
+
+        if (!lastBannerStats) {
+          statFps.textContent = "—";
+          statDraws.textContent = "—";
+          statCanvas.textContent = "—";
+          statDisplay.textContent = "—";
+          statDpr.textContent = "—";
+          statPlatform.textContent = "—";
+          statFps.className = "stats-value";
+          return;
+        }
+
+        const s = lastBannerStats;
+        statFps.textContent = String(s.fps);
+        statFps.className = "stats-value " + fpsClass(s.fps);
+        statDraws.textContent = String(s.drawCalls);
+        statDraws.className = "stats-value";
+        statCanvas.textContent = `${s.canvasWidth}×${s.canvasHeight}`;
+        statDisplay.textContent = `${s.displayWidth}×${s.displayHeight}`;
+        statDpr.textContent = Number(s.dpr).toFixed(1);
+        statPlatform.textContent = s.platform || "—";
+      };
+
+      const destroyPerfInFrame = () => {
+        try {
+          frame.contentWindow?.__showcasePerfDestroy?.();
+        } catch {
+        }
+      };
+
+      const injectPerfScript = () => {
+        let doc;
+        try {
+          doc = frame.contentDocument;
+        } catch {
+          console.warn(
+            "[stats] Нет доступа к iframe (cross-origin). Откройте viewer и баннер с одного домена.",
+          );
+          return false;
+        }
+
+        if (!doc) return false;
+
+        destroyPerfInFrame();
+
+        if (doc.querySelector('script[data-showcase-perf="1"]')) {
+          return true;
+        }
+
+        const script = doc.createElement("script");
+        script.src = perfScriptUrl;
+        script.async = true;
+        script.dataset.showcasePerf = "1";
+        doc.head.appendChild(script);
+        return true;
+      };
+
+      const setStatsEnabled = (enabled) => {
+        statsEnabled = enabled;
+        statsPanel.classList.toggle("visible", enabled);
+        statsToggleBtn.classList.toggle("active-stats", enabled);
+        statsToggleBtn.setAttribute("aria-pressed", enabled ? "true" : "false");
+
+        if (enabled) {
+          renderStatsPanel();
+          injectPerfScript();
+        } else {
+          destroyPerfInFrame();
+          lastBannerStats = null;
+          renderStatsPanel();
+        }
+
+        const url = new URL(window.location.href);
+        if (enabled) {
+          url.searchParams.set("stats", "1");
+        } else {
+          url.searchParams.delete("stats");
+        }
+        history.replaceState(null, "", url);
+      };
+
+      const toggleStats = () => setStatsEnabled(!statsEnabled);
+
+      statsToggleBtn.addEventListener("click", toggleStats);
+
+      window.addEventListener("message", (event) => {
+        if (!statsEnabled) return;
+
+        const data = event.data;
+        if (!data || data.type !== STATS_MESSAGE_TYPE) return;
+
+        if (event.source !== frame.contentWindow) return;
+
+        lastBannerStats = data;
+        renderStatsPanel();
+      });
+
       const onScaleChange = () => {
         const scale = document.getElementById("scale-slider").value / 100;
         document.getElementById("scale-value").textContent =
@@ -390,6 +641,8 @@
         const h = parseInt(wrapper.style.height) || 0;
         wrapper.parentElement.style.width = w * scale + "px";
         wrapper.parentElement.style.height = h * scale + "px";
+
+        if (statsEnabled) renderStatsPanel();
       };
 
       const autoFitScale = () => {
@@ -437,6 +690,8 @@
           const preset = SIZE_PRESETS[val];
           if (preset) setSize(preset.width, preset.height);
         }
+
+        if (statsEnabled) renderStatsPanel();
       };
 
       const doLaunch = () => {
@@ -513,11 +768,23 @@
         sizeSelect.value = initialSize;
       }
 
+      if (statsEnabledFromUrl) {
+        setStatsEnabled(true);
+      }
+
       requestAnimationFrame(() => {
         onSizeChange();
       });
 
-      frame.addEventListener("load", () => autoFitScale());
+      frame.addEventListener("load", () => {
+        autoFitScale();
+        if (statsEnabled) {
+          lastBannerStats = null;
+          renderStatsPanel();
+
+          setTimeout(() => injectPerfScript(), 300);
+        }
+      });
 
       if (!params.get("size")) {
         fetch(bannerUrl)
