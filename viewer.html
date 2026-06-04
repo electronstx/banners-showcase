@@ -70,6 +70,14 @@
         background: #1a365d;
         border-color: #2980b9;
       }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn:disabled:hover {
+        background: #16213e;
+        border-color: #0f3460;
+      }
       .btn:active {
         transform: scale(0.97);
       }
@@ -125,6 +133,39 @@
         align-items: center;
         justify-content: center;
         overflow: auto;
+      }
+
+      .frame-stage {
+        position: relative;
+      }
+
+      .frame-stage:fullscreen,
+      .frame-stage:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        background: #1a1a2e;
+        overflow: hidden;
+      }
+
+      .frame-stage:fullscreen .frame-wrapper,
+      .frame-stage:-webkit-full-screen .frame-wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%)
+          scale(var(--fullscreen-scale, 1)) !important;
+        transform-origin: center center !important;
+      }
+
+      .frame-stage:fullscreen .size-badge,
+      .frame-stage:-webkit-full-screen .size-badge {
+        bottom: 18px;
+        z-index: 30;
+        padding: 5px 9px;
+        border: 1px solid #0f3460;
+        border-radius: 6px;
+        background: rgba(22, 33, 62, 0.9);
+        color: #e0e0e0;
       }
 
       .frame-wrapper {
@@ -365,6 +406,16 @@
           />
           <button class="btn" onclick="applyCustomSize()">OK</button>
         </div>
+        <button
+          class="btn"
+          id="fullscreen-toggle"
+          type="button"
+          onclick="toggleFullscreen()"
+          title="Открыть баннер во весь экран"
+          aria-pressed="false"
+        >
+          &#x26F6; Во весь экран
+        </button>
       </div>
 
       <div class="toolbar-group">
@@ -399,7 +450,7 @@
     </div>
 
     <div class="viewport">
-      <div style="position: relative">
+      <div class="frame-stage" id="frame-stage">
         <div class="frame-wrapper" id="frame-wrapper">
           <iframe
             id="banner-frame"
@@ -479,9 +530,11 @@
 
       const bannerUrl = `https://${USER}.github.io/${REPO}/${PROJECTS_PATH}/${clientName}/${projectName}/index.html`;
       const frame = document.getElementById("banner-frame");
+      const frameStage = document.getElementById("frame-stage");
       const wrapper = document.getElementById("frame-wrapper");
       const badge = document.getElementById("size-badge");
       const sizeSelect = document.getElementById("size-select");
+      const fullscreenToggleBtn = document.getElementById("fullscreen-toggle");
 
       const STATS_MESSAGE_TYPE = "banner-showcase:stats";
       const statsEnabledFromUrl =
@@ -616,6 +669,116 @@
 
       statsToggleBtn.addEventListener("click", toggleStats);
 
+      const getFullscreenElement = () =>
+        document.fullscreenElement || document.webkitFullscreenElement;
+
+      const isFrameStageFullscreen = () =>
+        getFullscreenElement() === frameStage;
+
+      const requestFrameStageFullscreen = () => {
+        const request =
+          frameStage.requestFullscreen || frameStage.webkitRequestFullscreen;
+        if (!request) {
+          return Promise.reject(new Error("Fullscreen API unavailable"));
+        }
+
+        try {
+          return Promise.resolve(request.call(frameStage));
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      };
+
+      const exitFullscreen = () => {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if (!exit) return Promise.resolve();
+
+        try {
+          return Promise.resolve(exit.call(document));
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      };
+
+      const updateFullscreenScale = () => {
+        if (!isFrameStageFullscreen()) return;
+
+        const wrapperWidth =
+          parseInt(wrapper.style.width, 10) || wrapper.offsetWidth;
+        const wrapperHeight =
+          parseInt(wrapper.style.height, 10) || wrapper.offsetHeight;
+
+        if (!wrapperWidth || !wrapperHeight) return;
+
+        const inset = 32;
+        const badgeSpace = 44;
+        const availableWidth = Math.max(frameStage.clientWidth - inset * 2, 1);
+        const availableHeight = Math.max(
+          frameStage.clientHeight - inset * 2 - badgeSpace,
+          1,
+        );
+        const scale = Math.max(
+          0.1,
+          Math.min(
+            availableWidth / wrapperWidth,
+            availableHeight / wrapperHeight,
+          ),
+        );
+
+        frameStage.style.setProperty("--fullscreen-scale", scale);
+      };
+
+      const setFullscreenButtonState = () => {
+        const isFullscreen = isFrameStageFullscreen();
+        fullscreenToggleBtn.classList.toggle("primary", isFullscreen);
+        fullscreenToggleBtn.setAttribute(
+          "aria-pressed",
+          isFullscreen ? "true" : "false",
+        );
+        fullscreenToggleBtn.innerHTML = isFullscreen
+          ? "&#x2715; Выйти"
+          : "&#x26F6; Во весь экран";
+        fullscreenToggleBtn.title = isFullscreen
+          ? "Выйти из полноэкранного просмотра"
+          : "Открыть баннер во весь экран";
+      };
+
+      const toggleFullscreen = () => {
+        if (getFullscreenElement()) {
+          exitFullscreen().catch((e) =>
+            console.warn("Fullscreen exit failed:", e),
+          );
+          return;
+        }
+
+        requestFrameStageFullscreen().catch((e) => {
+          console.warn("Fullscreen API unavailable:", e);
+        });
+      };
+
+      const onFullscreenChange = () => {
+        if (isFrameStageFullscreen()) {
+          updateFullscreenScale();
+        } else {
+          frameStage.style.removeProperty("--fullscreen-scale");
+          autoFitScale();
+        }
+
+        setFullscreenButtonState();
+      };
+
+      document.addEventListener("fullscreenchange", onFullscreenChange);
+      document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+
+      if (
+        !frameStage.requestFullscreen &&
+        !frameStage.webkitRequestFullscreen
+      ) {
+        fullscreenToggleBtn.disabled = true;
+        fullscreenToggleBtn.title =
+          "Полноэкранный режим не поддерживается этим браузером";
+      }
+
       window.addEventListener("message", (event) => {
         if (!statsEnabled) return;
 
@@ -669,6 +832,7 @@
         wrapper.style.height = h + "px";
         badge.textContent = `${w} × ${h}`;
         autoFitScale();
+        updateFullscreenScale();
       };
 
       const applyCustomSize = () => {
@@ -807,7 +971,13 @@
         if (e.key === "Escape") closeQR();
       });
 
-      window.addEventListener("resize", () => autoFitScale());
+      window.addEventListener("resize", () => {
+        if (isFrameStageFullscreen()) {
+          updateFullscreenScale();
+        } else {
+          autoFitScale();
+        }
+      });
     </script>
   </body>
 </html>
