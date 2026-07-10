@@ -118,5 +118,9 @@
   {
     "client": "winline",
     "project": "june-2026-bet-2"
+  },
+  {
+    "client": "yandex",
+    "project": "july-2026"
   }
 ]
