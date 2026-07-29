@@ -152,8 +152,7 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%)
-          scale(var(--fullscreen-scale, 1)) !important;
+        transform: translate(-50%, -50%) scale(var(--fullscreen-scale, 1)) !important;
         transform-origin: center center !important;
       }
 
@@ -373,6 +372,7 @@
         <select id="size-select" onchange="onSizeChange()">
           <option value="vk">VK (1177 &times; 873)</option>
           <option value="vk-tgb">VK TGB (158 &times; 300)</option>
+          <option value="vk-story">VK Story (375 &times; 667)</option>
           <option value="ok">OK (1080 &times; 810)</option>
           <option value="zen">Zen (1200 &times; 900)</option>
           <option value="zen-game">Zen Game (1150 &times; 650)</option>
@@ -506,6 +506,7 @@
       const SIZE_PRESETS = {
         vk: { width: 1177, height: 873 },
         "vk-tgb": { width: 158, height: 300 },
+        "vk-story": { width: 375, height: 667 },
         ok: { width: 1080, height: 810 },
         zen: { width: 1200, height: 900 },
         "zen-game": { width: 1150, height: 650 },
