@@ -161,6 +161,10 @@
   },
   {
     "client": "yandex",
+    "project": "august-2026-new"
+  },
+  {
+    "client": "yandex",
     "project": "july-2026"
   }
 ]
